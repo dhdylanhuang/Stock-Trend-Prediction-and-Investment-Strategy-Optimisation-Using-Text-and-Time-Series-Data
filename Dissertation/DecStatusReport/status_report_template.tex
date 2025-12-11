@@ -1,0 +1,71 @@
+\documentclass[11pt]{article}
+\usepackage{times}
+\usepackage{fullpage}
+\title{Stock Trend Prediction and Investment Strategy Optimisation Using Text and Time-Series Data}
+\author{Dylan Huang - 2789356H}
+\begin{document}
+\maketitle
+\section*{Status Report}
+\section{Proposal}\label{proposal}
+
+\subsection{Motivation}\label{motivation}
+Equity markets are driven by both numerical signals and unstructured information, yet most models either ignore text or emit uncalibrated probabilities that are hard to trust for portfolio sizing. This project tackles that gap with a multimodal approach that fuses financial time-series data and social media posts to predict stock trend magnitudes via multiclass classification whilst learning from prior forecasts to judge when to trust its own outputs, and using post-hoc calibration so those outputs can drive risk-aware staking. The learned signals will come from diverse model types (e.g., LSTM binary classifiers and GRU regressors), blended and calibrated for consistency, and ultimately stacked in a meta-learner. The combinations of signals would help traders and researchers cut drawdowns and deploy capital more confidently, while also advancing meta-model learning research.
+
+\subsection{Aims}\label{aims}
+Predictive and economic outcomes are our measure of success. We will first add as much value as possible to the dataset through feature engineering and modality fusion, then train and compare diverse models (Bi-/LSTM/GRU binary classifiers, Bi-/LSTM/GRU regressors and an ordinal multiclass head) to select the strongest signals without overfitting. We then evaluate the metrics of each such as precision/recall/F1, ROC-AUC and calibration error, alongside real economic value in the investment simulator. The meta-learning layer aggregates these signals for staking, where the key targets are higher return on investment and a Sharpe ratio with lower drawdowns. Lastly, we will benchmark against existing literature and baselines to give context to our results.
+
+\section{Progress}\label{progress}
+\begin{itemize}
+    \setlength{\itemsep}{1pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item Implemented Enrique2025 (Prof. Joemon) work in PyTorch as a baseline.
+    \item Added missing weight decay and seeded runs to stabilize results and improve reproducibility.
+    \item Baseline investment simulator in PyTorch to evaluate signals end-to-end.
+    \item Extended prediction horizon so models can forecast further into the future.
+    \item Introduced multiclass benchmarking in place of purely binary/regression setups.
+    \item Extended multiclass handling into the investment simulations so allocation logic uses bucketing.
+    \item Using temperature scaling plus per-threshold tuning to improve probability quality before staking.
+    \item Engineered sector-level analytics into feature set to capture cross-sectional structure.
+    \item Standardized the preprocessing pipeline with scaling and sequence windowing.
+    \item Set up ablation hooks to compare modalities, model families, and calibration variants, and began benchmarking against prior baselines on the same dataset.
+\end{itemize}
+
+\section{Problems and risks}\label{problems-and-risks}
+\subsection{Problems}\label{problems}
+\begin{itemize}
+    \setlength{\itemsep}{1pt}
+    \setlength{\parskip}{0pt}
+    \setlength{\parsep}{0pt}
+    \item Steep learning curve: self-teaching quantitative finance and deep learning best practices takes up the majority of time.
+    \item Leakage: misaligned time data and look ahead bias require constant monitoring every time a change is made to the pipeline and dataframes. 
+    \item Bucketing: fixed return bucketing is hard to tune causing unstable class distributions and decision boundaries.
+\end{itemize}
+
+\subsection{Risks}\label{risks}
+\begin{itemize}
+\setlength{\itemsep}{1pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+    \item Data leakage \& lookahead. Mitigation: strict chronological splits, leakage checks, and feature time-shifts compare to baseline.
+    \item Sentiment quality may degrade or misalign. Mitigation: periodic NLP score validation and lightweight retuning.
+    \item Meta-learning on small samples can overfit to noise. Mitigation: cross-validated stacking and regularization and more research.
+    \item Filtering/staking logic may overfit backtests. Mitigation: compare against simple baselines (equal-weight, uncalibrated signals).
+    \item Broader searches horizons may exceed budget. Mitigation: prioritize high-impact experiments, reuse pretrained components, and use early stopping.
+\end{itemize}
+
+\section{Plan (15 Dec - 27 March)}\label{plan}
+\begin{itemize}
+\setlength{\itemsep}{1pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+    \item Week 1 (15-21 Dec): integrate prior GRU/LSTM regressors and classifiers (and their errors) as features.
+    \item Week 2-4 (22 Dec-11 Jan): figure out staking strategy (DL models vs. transformer vs. simpler approaches); Begin dissertation drafting.
+    \item Week 5 (12-18 Jan): refine NLP filters and quantify impact; drop/simplify if marginal.
+    \item Week 6 (19-25 Jan): make investment simulation more interpretable.
+    \item Week 7 (26 Jan-1 Feb): run systematic ablations and lock the staking approach.
+    \item Weeks 8-11 (2-22 Feb): full backtests, last fixes and benchmarking.
+    \item Weeks 12-13 (23 Feb-27 Mar): submit draft and continuously improve.
+\end{itemize}
+
+\end{document}
