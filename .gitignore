@@ -211,6 +211,11 @@ __marimo__/
 *.fdb_latexmk
 *.fls
 *.gz
+*.log
+*.out
+fonts/
+images/
+
 
 # Trained models
 trained_models/
