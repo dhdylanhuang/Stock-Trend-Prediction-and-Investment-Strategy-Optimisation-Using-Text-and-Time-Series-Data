@@ -1,0 +1,27 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build LaTeX Dissertation",
+			"type": "shell",
+			"command": "cd 'Dissertation/2789356h_dissertation' && /Library/TeX/texbin/pdflatex -interaction=nonstopmode l4proj.tex && /Library/TeX/texbin/bibtex l4proj && /Library/TeX/texbin/pdflatex -interaction=nonstopmode l4proj.tex && /Library/TeX/texbin/pdflatex -interaction=nonstopmode l4proj.tex",
+			"isBackground": false,
+			"problemMatcher": [
+				"$pdflatex"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"options": {
+				"env": {
+					"PATH": "/Library/TeX/texbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+				}
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			}
+		}
+	]
+}

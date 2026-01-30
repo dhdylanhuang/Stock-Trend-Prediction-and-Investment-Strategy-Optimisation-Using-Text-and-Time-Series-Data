@@ -15,21 +15,22 @@
 
 %==============================================================================
 %% METADATA
-\title{Level 4 Project Report Template} % change this to your title
-\author{John H. Williamson}
-\date{September 14, 2018}
+\title{Trust Aware Stock Trend Prediction and Investment Strategy Optimisation Using Multimodal Deep Learning}
+\author{Dylan ShengHong Huang}
+\date{March 26, 2026}
 
 \maketitle
 
 %==============================================================================
 %% ABSTRACT
 \begin{abstract}
-    Every abstract follows a similar pattern. Motivate; set aims; describe work; explain results.
-    \vskip 0.5em
-    ``XYZ is bad. This project investigated ABC to determine if it was better. 
-    ABC used XXX and YYY to implement ZZZ. This is particularly interesting as XXX and YYY have
-    never been used together. It was found that  
-    ABC was 20\% better than XYZ, though it caused rabies in half of subjects.''
+    Financial markets are noisy, non-stationary systems influenced by both historical price dynamics and evolving external information. Recent deep-learning approaches have demonstrated modest improvements in stock movement prediction, much of the literature evaluates success primarily through accuracy-based metrics, often relying on uncalibrated confidence scores that do not translate into reliable investment decisions. As a result, the economic value and risk characteristics of many proposed models remain unclear.
+    
+    This dissertation adressess this gap by integrating multimodal prediction, probability calibration and principled capital allocation into a single end-to-end framework, evaluating whether integrating diverse predictive signals with multiple deep-learning architectures (LSTM \& GRU variants) trained to predict stock trend direction and magnitude can yield robust and trustworthy forecasts implemented with risk aware capital allocation strategies, including full Kelly, fraction Kelly and mean-variance-portfolio theory (MPT).
+
+    The framework incorporates prior model predictions and their historical errors as meta-features, enabling the system to learn when its outputs should be trusted. In addtion, a variable-horizon forecasting approach with an early-exit based on confidence is emloyed to move beyond traditional fixed-horizon models, allowing the system to capture both short-term fluctiations and long-term trends.
+
+    Results show that calibrated multiclass predictions improve decision stability and reduce excessive turnover compared to uncalibrated baselines, furthermore, risk-aware capital allocation strategies consistently outperfom naïve staking approaches, with hybrid Kelly-MPT achieving teh strongest risk-adjusted return over 100 trading days. These findings lay the groundwork for future research into trust-aware financial prediction systems that prioritise both accuracy and economic value.
 \end{abstract}
 
 %==============================================================================
