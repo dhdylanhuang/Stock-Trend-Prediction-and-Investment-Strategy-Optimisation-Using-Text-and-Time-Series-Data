@@ -31,4 +31,3 @@
 \contentsline {section}{\numberline {7.4}Future work}{13}{section.7.4}%
 \contentsline {chapter}{Appendices}{14}{section*.12}%
 \contentsline {chapter}{\numberline {A}Appendices}{14}{appendix.1.A}%
-\contentsline {chapter}{Bibliography}{15}{appendix*.13}%

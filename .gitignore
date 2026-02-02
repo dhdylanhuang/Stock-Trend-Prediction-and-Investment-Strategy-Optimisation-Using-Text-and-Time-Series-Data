@@ -220,3 +220,13 @@ images/
 # Trained models
 trained_models/
 trained_models_multi/
+
+# TeX unnecessary files
+*.bbl
+*.blg
+*.synctex
+*.synctex.gz
+*.toc
+*.nav
+*.snm
+*.vrb
