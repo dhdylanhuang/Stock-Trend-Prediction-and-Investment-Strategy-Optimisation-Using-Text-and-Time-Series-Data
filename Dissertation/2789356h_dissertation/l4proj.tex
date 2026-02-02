@@ -24,19 +24,19 @@
 %==============================================================================
 %% ABSTRACT
 \begin{abstract}
-Financial markets are noisy, non-stationary systems influenced by both historical price dynamics and evolving external information. Recent deep-learning approaches have demonstrated modest improvements in stock movement prediction, much of the literature evaluates success primarily through accuracy-based metrics, often relying on uncalibrated confidence scores that do not translate into reliable investment decisions. As a result, the economic value and risk characteristics of many proposed models remain unclear.
+Financial markets are noisy, non-stationary systems influenced by both historical price dynamics and evolving external information. Recent deep-learning approaches have demonstrated modest improvements in stock movement prediction, with success dictated by accuracy-based metrics, often relying on uncalibrated confidence scores that do not translate into reliable investment decisions. As a result, the economic value and risk characteristics of many proposed models remain unclear.
 
 This dissertation addresses the gap by integrating multi-modal predictions, probability calibration, and principled capital allocation into a single end-to-end framework, evaluating whether diverse predictive signals fed into multiple deep-learning architectures (LSTM \& GRU variants) trained to predict stock direction and magnitude can yield robust and trustworthy forecasts implemented with risk-aware capital allocation strategies.
 
 The framework incorporates prior model predictions and their historical errors as meta-features, enabling the system to learn when its outputs should be trusted. In addition, a variable-horizon forecasting approach is employed to move beyond traditional fixed-horizon models, allowing the system to capture both short-term fluctuations and long-term trends.
 
-Results show that this approach improves decision stability and reduces excessive turnover compared to uncalibrated baselines, furthermore, risk-aware capital allocation strategies consistently outperform naïve staking strategies, with the hybrid Kelly-Modern Portfolio Theory achieving the strongest risk-adjusted return of \todo{XX\%} over 100 trading days. These findings lay the groundwork for future research into trust-aware financial prediction systems that prioritises both accuracy and economic value.
+Results show that this approach improves decision stability and reduces excessive turnover compared to uncalibrated baselines, furthermore, risk-aware capital allocation strategies consistently outperform naïve staking strategies, with the hybrid Kelly-Modern Portfolio Theory achieving the strongest risk-adjusted return of \todo{XX\%} over 100 trading days, \todo{X} times higher than the previous baseline set over the same time-frame. These findings lay the groundwork for future research into trust-aware financial prediction systems that prioritises both accuracy and economic value.
 \end{abstract}
 
 %==============================================================================
 %% ACKNOWLEDGEMENTS
 \chapter*{Acknowledgements}
-I would like to express my thanks to Enrique Alejandro González Amador, a former MSci student at the University of Glasgow School of Computing Science, whose dissertation on Adapting Natural Language Processing and Deep Learning Tools to an end-to-end Day Trading System (2025) supervised by Prof. Jose Joemon, provided the foundational idea and initial structure for this work.
+I would like to express my thanks to Enrique Alejandro González Amador, a former MSc student at the University of Glasgow School of Computing Science, whose dissertation on Adapting Natural Language Processing and Deep Learning Tools to an end-to-end Day Trading System (2025) supervised by Prof. Jose Joemon, provided the foundational idea and initial structure for this work.
 
 %==============================================================================
 
@@ -99,7 +99,6 @@ I would like to express my thanks to Enrique Alejandro González Amador, a forme
 % text in the final copy, and you will also get warnings when you compile (so you don't
 % forget to take them out!)
 
-\todo{Remove the guidance notes from your dissertation before submitting!}
 
 Why should the reader care about what are you doing and what are you actually doing?
 \section{Guidance}
