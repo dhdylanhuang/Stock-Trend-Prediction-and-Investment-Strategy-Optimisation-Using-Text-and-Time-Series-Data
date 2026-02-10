@@ -24,9 +24,7 @@
 %==============================================================================
 %% ABSTRACT
 \begin{abstract}
-Financial markets are noisy, non-stationary systems influenced by both historical price dynamics and evolving external information. Recent deep-learning approaches have demonstrated modest improvements in stock movement prediction, with success dictated by accuracy-based metrics, often relying on uncalibrated confidence scores that do not translate into reliable investment decisions. As a result, the economic value and risk characteristics of many proposed models remain unclear.
-
-This dissertation addresses the gap by integrating multi-modal predictions, probability calibration, and principled capital allocation into a single end-to-end framework, evaluating whether diverse predictive signals fed into multiple deep-learning architectures (LSTM \& GRU variants) trained to predict stock direction and magnitude can yield robust and trustworthy forecasts implemented with risk-aware capital allocation strategies.
+This dissertation addresses the gap between accuracy-based metrics and economic value by integrating multi-modal predictions, probability calibration, and principled capital allocation into a single end-to-end framework, evaluating whether diverse predictive signals fed into multiple deep-learning architectures (LSTM \& GRU variants) trained to predict stock direction and magnitude can yield robust and trustworthy forecasts implemented with risk-aware capital allocation strategies.
 
 The framework incorporates prior model predictions and their historical errors as meta-features, enabling the system to learn when its outputs should be trusted. In addition, a variable-horizon forecasting approach is employed to move beyond traditional fixed-horizon models, allowing the system to capture both short-term fluctuations and long-term trends.
 
@@ -36,7 +34,7 @@ Results show that this approach improves decision stability and reduces excessiv
 %==============================================================================
 %% ACKNOWLEDGEMENTS
 \chapter*{Acknowledgements}
-I would like to express my thanks to Enrique Alejandro González Amador, a former MSc student at the University of Glasgow School of Computing Science, whose dissertation on Adapting Natural Language Processing and Deep Learning Tools to an end-to-end Day Trading System (2025) supervised by Prof. Jose Joemon, provided the foundational idea and initial structure for this work.
+I would like to express my thanks to Enrique Alejandro González Amador, a former MSc student at the University of Glasgow School of Computing Science, whose dissertation on Adapting Natural Language Processing and Deep Learning Tools to an end-to-end Day Trading System (2025) and, of course, to Prof. Jose Joemon who not only supervised Enrique but myself as well. Without his experience and guidance this project could not have reached the level that it has.
 
 %==============================================================================
 
@@ -93,17 +91,25 @@ I would like to express my thanks to Enrique Alejandro González Amador, a forme
 \chapter{Introduction}
 
 % reset page numbering. Don't remove this!
+
 \pagenumbering{arabic} 
 
 % You can use \todo{} to mark text that needs to be fixed. Anything inside will appear as highlighted 
 % text in the final copy, and you will also get warnings when you compile (so you don't
 % forget to take them out!)
 
+\section{Motivation}
+Financial markets are inherently noisy, non-stationary systems in which stock prices are influenced by complex interactions between historical price dynamics and rapidly evolving external information. Despite decades of research, consistently forecasting market behaviour remains challenging, not only due to stochastic price movements but also due to the relationship between predictive signals and future returns varying across time and market regimes. As a result, even small modelling assumptions can significantly impact downstream decision-making.
 
-Why should the reader care about what are you doing and what are you actually doing?
-\section{Guidance}
+Recent advances in deep learning have led to measurable improvements in stock movement prediction, particularly through the use of sequence models such as Long Short-Term Memory(LSTM) and Gated Recurrent Unit (GRU) networks, as well as the incorporation of unstructured textual data such as news and social media. However, much of the existing literature evaluates predictive success primarily through accuracy-based metrics, often without sufficient consideration of how model outputs are subsequently used in financial decision-making. In practice, predictive accuracy alone is insufficient, investment decisions depend critically on the reliability of predicted probabilities and the ability to translate forecasts into appropriately sized positions under risk.
 
-\textbf{Motivate} first, then state the general problem clearly. 
+In practical investment settings, model outputs are rarely consumed as hard class labels, instead, they are interpreted as probabilities that inform position sizing and risk management. This places importance on both the directional accuracy and the reliability of the prediction. A well-calibrated model produces probabilities estimates whose empirical frequencies align with observed outcomes in practice, whilst poorly calibrated models generate unreliable probabilities that are treated as meaningful inputs to allocation rules leading to over- or under-sized positions, unstable trading behaviour and amplified drawdowns, even when headline accuracy metrics appear strong.
+
+Beyond calibration, a further limitation of many existing approaches is the implicit assumption that a model's predictive reliability is static. In reality, model performance fluctuates over time due to regime shifts, changes in market microstructure and evolving information flows. Models rarely account for their own historical errors when making new predictions and thus may continue to express high confidence even during periods of deteriorating performance. Incorporating information about prior predictions and their realised errors offers a principled way for a system to assess its own reliability and adapt its behaviour accordingly.
+
+Finally, prediction and capital allocation are often treated as separate problems, with models evaluated independently of the investment strategies they enable. This separation obscures the true economic value of predictive improvements and limits the interpretability of reported results Investment performance depends jointly on the quality of predictive signals, the reliability of associated probabilites and the manner in which capital is allocated under uncertainty.
+
+This project is motivated by the need for an integrated framework that unifies multimodal prediction, model self-assessment, probability calibration and principled capital allocation within a single coherent system. By combining heterogeneous data sources with information derived from prior predictions and their realised errors, the framework seeks to improve both the reliability of forecasts and their practical utility under non-stationary market conditions. Through the joint evaluation of statistical performance and economic outcomes, this work aims to bridge the gap between predictive modelling and real-world investment decision-making, demonstrating how certainty-aware learning and risk-sensitive allocation can support more stable and economically meaningful trading strategies in dynamic environments.
 
 \section{Writing guidance}
 \subsection{Who is the reader?}
