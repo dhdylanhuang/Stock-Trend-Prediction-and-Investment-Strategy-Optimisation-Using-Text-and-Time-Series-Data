@@ -107,7 +107,7 @@ In practical investment settings, model outputs are rarely consumed as hard clas
 
 Beyond calibration, a further limitation of many existing approaches is the implicit assumption that a model's predictive reliability is static. In reality, model performance fluctuates over time due to regime shifts, changes in market microstructure and evolving information flows. Models rarely account for their own historical errors when making new predictions and thus may continue to express high confidence even during periods of deteriorating performance. Incorporating information about prior predictions and their realised errors offers a principled way for a system to assess its own reliability and adapt its behaviour accordingly.
 
-Finally, prediction and capital allocation are often treated as separate problems, with models evaluated independently of the investment strategies they enable. This separation obscures the true economic value of predictive improvements and limits the interpretability of reported results Investment performance depends jointly on the quality of predictive signals, the reliability of associated probabilites and the manner in which capital is allocated under uncertainty.
+Finally, prediction and capital allocation are often treated as separate problems, with models evaluated independently of the investment strategies they enable. This separation obscures the true economic value of predictive improvements and limits the interpretability of reported results Investment performance depends jointly on the quality of predictive signals, the reliability of associated probabilities and the manner in which capital is allocated under uncertainty.
 
 This project is motivated by the need for an integrated framework that unifies multimodal prediction, model self-assessment, probability calibration and principled capital allocation within a single coherent system. By combining heterogeneous data sources with information derived from prior predictions and their realised errors, the framework seeks to improve both the reliability of forecasts and their practical utility under non-stationary market conditions. Through the joint evaluation of statistical performance and economic outcomes, this work aims to bridge the gap between predictive modelling and real-world investment decision-making, demonstrating how certainty-aware learning and risk-sensitive allocation can support more stable and economically meaningful trading strategies in dynamic environments.
 
@@ -140,7 +140,7 @@ The following key contributions are made:
     \textbf{A systematic application of probability calibration to deep-learning models}, enabling model confidence scores to be interpreted as meaningful probabilities suitable for downstream risk-sensitive decision-making.
 
     \item 
-    \textbf{A comparative evaluation of capital allocation strategies}, including full Kelly, fractional Kelly, mean--variance portfolio theory (MPT) and a hybrid fractional Kelly--MPT approach, assessed using economic performance measures.
+    \textbf{A comparative evaluation of capital allocation strategies}, including full Kelly, fractional Kelly, mean-variance portfolio theory (MPT) and a hybrid fractional Kelly-MPT approach, assessed using economic performance measures.
 
     \item 
     \textbf{An evaluation methodology grounded in economic outcomes}, assessing return, drawdown and risk-adjusted performance alongside traditional accuracy-based predictive metrics.
@@ -169,55 +169,85 @@ Chapter 7, \textit{Discussion}, interprets the findings in relation to the resea
 Chapter 8, \textit{Conclusion and Future Work}, summarises the main contributions, discusses limitations, and outlines directions for future research.
 
 Additional material, including extended results and implementation details, is provided in the Appendices.
-\section{Citation styles}
 
-\begin{itemize}
-\item If you are referring to a reference as a noun, then cite it as: ``\citet{Orw68} discusses the role of language in political thought.''
-\item If you are referring implicitly to references, use: ``There are many good books on writing \citep{Orw68, Wil09, Pin15}.''
-\end{itemize}
+% \section{Citation styles}
 
-There is a complete guide on good citation practice by Peter Coxhead available here: \url{http://www.cs.bham.ac.uk/~pxc/refs/index.html}. 
-If you are unsure about how to cite online sources, please see \citet{UNSWWebsite}. 
-\footnote{Specifying an online resource like \url{https://developer.android.com/studio}
-in a footnote sometimes makes more sense than including it as a formal reference.}
+% \begin{itemize}
+% \item If you are referring to a reference as a noun, then cite it as: ``\citet{Orw68} discusses the role of language in political thought.''
+% \item If you are referring implicitly to references, use: ``There are many good books on writing \citep{Orw68, Wil09, Pin15}.''
+% \end{itemize}
 
-\subsection{Plagiarism warning}
+% There is a complete guide on good citation practice by Peter Coxhead available here: \url{http://www.cs.bham.ac.uk/~pxc/refs/index.html}. 
+% If you are unsure about how to cite online sources, please see \citet{UNSWWebsite}. 
+% \footnote{Specifying an online resource like \url{https://developer.android.com/studio}
+% in a footnote sometimes makes more sense than including it as a formal reference.}
 
-\begin{highlight_title}{WARNING}
+% \subsection{Plagiarism warning}
+
+% \begin{highlight_title}{WARNING}
     
-    If you include material from other sources without full and correct attribution, you are commiting plagiarism. The penalties for plagiarism are severe.
-    Quote any included text and cite it correctly. Cite all images, figures, etc. clearly in the caption of the figure.
-\end{highlight_title}
+%     If you include material from other sources without full and correct attribution, you are commiting plagiarism. The penalties for plagiarism are severe.
+%     Quote any included text and cite it correctly. Cite all images, figures, etc. clearly in the caption of the figure.
+% \end{highlight_title}
 
-\subsection{Quoting text}
+% \subsection{Quoting text}
 
-If you are quoting a long passage, use a \texttt{quote} environment:
+% If you are quoting a long passage, use a \texttt{quote} environment:
 
-\begin{quote}
-     If you scribble your thoughts any which way, your readers will surely feel that you care nothing about them. They will mark you down as an egomaniac or a chowderhead -or, worse, they will stop reading you. The most damning revelation you can make about yourself is that you do not know what is interesting and what is not.
-\end{quote} \citep{Von80}
+% \begin{quote}
+%      If you scribble your thoughts any which way, your readers will surely feel that you care nothing about them. They will mark you down as an egomaniac or a chowderhead -or, worse, they will stop reading you. The most damning revelation you can make about yourself is that you do not know what is interesting and what is not.
+% \end{quote} \citep{Von80}
 
-If you are quoting inline, like Simon Peyton-Jones' following remark, use quotation marks ``Conveying the intuition is primary, not
-secondary'' \citep{Pey17}.
+% If you are quoting inline, like Simon Peyton-Jones' following remark, use quotation marks ``Conveying the intuition is primary, not
+% secondary'' \citep{Pey17}.
 
 
 %==================================================================================================================================
-\chapter{Background}
-What did other people do, and how is it relevant to what you want to do?
-\section{Guidance}
-\begin{itemize}    
-    \item
-      Don't give a laundry list of references.
-    \item
-      Tie everything you say to your problem.
-    \item
-      Present an argument.
-    \item Think critically; weigh up the contribution of the background and put it in context.    
-    \item
-      \textbf{Don't write a tutorial}; provide background and cite
-      references for further information.
+\chapter{Background \& Related Work}
+
+\section{Stock Movement Prediction}
+
+Stock movement prediction (SMP) aims to forecast future price direction or return magnitude using historical market data and auxiliary information. A fundamental challenge in this domain is the time-varying and regime-dependent nature of financial markets. Early empirical evidence by \citet{https://doi.org/10.1111/j.1540-6261.1989.tb02647.x} demonstrated that stock market volatility is persistent, clustered and strongly associated with macroeconomic uncertainty, recessions, and financial crises. Crucially, volatility dynamics are not constant over time, and no single macroeconomic factor fully explains their variation. This work established that financial markets are inherently non-stationary, with structural shifts in risk conditions occurring over time.
+
+The implication for prediction models is clear in that the assumptions of stable statistical relationships are often violated in practice. Forecasting systems must therefore operate under changing volatility regimes and evolving market conditions, motivating adaptive and sequence-aware modelling approaches.
+
+\subsection{From Statistical Models to Deep Learning}
+
+Early approaches to SMP relied on classical statistical models such as ARIMA, which assume linear relationships and weak stationarity. While these models can capture short-term autocorrelation patterns, their performance is limited in the presence of non-linearity and structural breaks \citep{Ho_2021}.
+
+With the emergence of machine learning and deep learning, recurrent architectures such as LSTM and GRU networks became widely adopted for financial time-series modelling. These models are capable of capturing long-term dependencies and non-linear interactions within sequential data. Large-scale empirical evidence by \citet{FISCHER2018654} shows that LSTM-based models trained on S\&P 500 constituents (1992-2015) outperform classical baselines such as ARIMA, Random Forests, and shallow neural networks when evaluation respects temporal ordering. However, performance was shown to decay post-2010, highlighting regime sensitivity and the fragility of learned patterns.
+
+These findings suggest that while deep sequence models can extract predictive structure, their effectiveness depends heavily on market conditions and proper evaluation protocols.
+
+\subsection{Multimodal Extensions}
+
+Beyond price-only models, researchers have incorporated textual information such as news headlines and social media posts to capture sentiment and narrative signals not immediately reflected in historical prices. \citet{xu-cohen-2018-stock} introduced \textit{StockNet}, modelling market uncertainty using a recurrent variational autoencoder combined with an auxiliary temporal prediction head. Evaluated on Twitter and price data across 88 U.S. stocks (2014–2016), the model outperformed ARIMA, Random Forest, and text-only baselines. However, the use of dead-zone filtering, which excludes small-movement days, may have inflated reported accuracy by simplifying the classification task.
+
+Building upon this direction, \citet{he2022multimodalattentionnetworkstock} proposed a Multimodal Attention Network (MMAN) that integrates credibility-aware textual features with price encoders through intra- and inter-modal attention mechanisms. Ablation studies demonstrate that both credibility modelling and cross-modal attention contribute positively to performance, suggesting that structured multimodal fusion can enhance predictive capability. 
+
+In parallel, robustness to market noise has been explored through adversarial training. \citet{feng2019enhancingstockmovementprediction} introduced an adversarially trained LSTM (Adv-LSTM), incorporating worst-case perturbations during training to improve generalisation under stochastic conditions. Reported improvements over prior baselines indicate enhanced resilience to noisy inputs. 
+
+More recent work has investigated multi-scale modelling and extended temporal windows, demonstrating that incorporating longer historical context can further improve statistical performance. Nevertheless, across these multimodal approaches, evaluation remains predominantly focused on classification metrics such as accuracy and MCC. Label filtering and the absence of cost-aware economic assessment are recurring limitations, leaving open the question of whether statistical improvements translate into meaningful financial performance.
+
+\subsection{Limitations in Existing Literature}
+
+Across these studies, several patterns emerge:
+
+\begin{itemize}
+    \item Deep sequence models generally outperform classical statistical baselines under proper temporal evaluation.
+    \item Multimodal fusion of textual and price data often yields incremental predictive gains.
+    \item Robustness mechanisms (e.g., adversarial training, multi-scale modelling) improve statistical performance.
 \end{itemize}
 
+However, many studies:
+\begin{itemize}
+    \item Evaluate performance primarily using accuracy or correlation-based metrics.
+    \item Apply filtering techniques that simplify the prediction task.
+    \item Do not assess economic value under realistic trading costs.
+    \item Assume static model reliability despite regime-dependent volatility.
+\end{itemize}
+
+These limitations motivate a more integrated approach that jointly considers predictive modelling, uncertainty estimation, model reliability, and economic performance within a unified evaluation framework.
 %==================================================================================================================================
 \chapter{Analysis/Requirements}
 What is the problem that you want to solve, and how did you arrive at it?
