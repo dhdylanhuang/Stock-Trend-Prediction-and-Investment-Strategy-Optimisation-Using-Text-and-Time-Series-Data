@@ -248,6 +248,39 @@ However, many studies:
 \end{itemize}
 
 These limitations motivate a more integrated approach that jointly considers predictive modelling, uncertainty estimation, model reliability, and economic performance within a unified evaluation framework.
+
+\section{Deep Learning for Time-Series Modelling}
+
+Early recurrent neural networks (RNNs) were theoretically well-suited for sequence modelling but struggled in practice due to the vanishing and exploding gradient problem. As demonstrated by \citet{hochreiter1997long}, gradients propagated through time either decay or grow exponentially as sequence length increases, preventing effective learning of long-term dependencies. This limitation makes standard RNNs unreliable for tasks requiring memory over extended time horizons.
+
+To address this, \citet{hochreiter1997long} introduced the Long Short-Term Memory (LSTM) architecture. LSTMs incorporate gated memory cells designed to preserve stable gradient flow across long temporal spans. By regulating information flow through input, forget and output gates, LSTMs enable controlled memory retention and selective forgetting. This architecture allows the network to learn dependencies spanning hundreds or even thousands of time steps, overcoming the instability inherent in traditional RNN training.
+
+\subsection{Long Short-Term Memory (LSTM)}
+
+Subsequent analyses, including \citet{staudemeyer2019understandinglstmtutorial}, clarify that the strength of LSTMs lies in their gated structure and explicit memory cell. The separation between hidden state and cell state permits stable error propagation while protecting memory from irrelevant noise. This design enables LSTMs to model long-term temporal dependencies more reliably than earlier recurrent architectures.
+
+In time-series domains such as finance, where regime persistence and volatility clustering occur, the ability to retain information over extended periods is particularly relevant. However, LSTMs are not without limitations. Model capacity is finite, architectural design choices significantly influence performance, and increasing network size does not automatically guarantee improved long-term reasoning.
+
+\subsection{Gated Recurrent Units (GRU)}
+
+The Gated Recurrent Unit (GRU) was introduced as a simplified variant of the LSTM, merging the input and forget gates into a single update gate and removing the explicit memory cell. This reduces architectural complexity and parameter count while retaining gating mechanisms that regulate temporal information flow.
+
+Empirical comparisons, such as those conducted by \citet{Cahuantzi_2023}, suggest that GRUs often achieve performance comparable to LSTMs on moderately complex sequence tasks while offering improved computational efficiency. However, for highly complex or long-range dependency structures, LSTMs may demonstrate superior stability and representational capacity.
+
+In financial time-series modelling, this trade-off implies that GRUs may suffice for short-term pattern extraction, whereas LSTMs may better capture longer-term regime persistence and volatility dynamics. Consequently, both architectures remain widely adopted in stock movement prediction research.
+
+\subsection{Bidirectional Variants}
+
+Bidirectional recurrent neural networks (BRNNs) extend standard RNN architectures by processing sequences in both forward and backward directions \citep{650093}. By combining hidden representations from past-to-future and future-to-past passes, bidirectional models leverage full-sequence context for each time step.
+
+Bidirectional architectures have demonstrated improved performance in tasks such as speech recognition and sequence classification(\cite{GRAVES2005602}, \cite{huang2015bidirectionallstmcrfmodelssequence}), and they form the basis of widely used models such as BiLSTM and BiGRU. However, in financial time-series applications, strict temporal ordering must be preserved to avoid information leakage. While bidirectional models may be appropriate in offline feature extraction or representation learning contexts, their use in predictive trading systems requires careful consideration to ensure causal integrity.
+
+\subsection{Implications for Stock Movement Prediction}
+
+The progression from classical RNNs to gated recurrent architectures and their bidirectional extensions reflects a broader shift toward models capable of handling long-term dependencies, non-linearity, and temporal complexity. In financial markets—characterised by regime shifts, volatility clustering, and evolving dynamics—such properties are particularly valuable.
+
+Nevertheless, while deep sequence models have demonstrated strong statistical performance relative to classical baselines, their effectiveness remains sensitive to market conditions and evaluation methodology. This reinforces the importance of coupling architectural advances with robust evaluation, calibration, and economic assessment.
+
 %==================================================================================================================================
 \chapter{Analysis/Requirements}
 What is the problem that you want to solve, and how did you arrive at it?
