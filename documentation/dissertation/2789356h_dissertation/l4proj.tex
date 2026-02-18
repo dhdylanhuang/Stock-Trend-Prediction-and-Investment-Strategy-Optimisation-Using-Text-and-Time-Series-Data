@@ -15,7 +15,7 @@
 
 %==============================================================================
 %% METADATA
-\title{Trust Aware Stock Trend Prediction and Investment Strategy Optimisation Using Multimodal Deep Learning}
+\title{Trust Aware Stock Trend Prediction and Investment Strategy Optimisation Using Deep Learning}
 \author{Dylan ShengHong Huang}
 \date{March 26, 2026}
 
@@ -207,7 +207,7 @@ Additional material, including extended results and implementation details, is p
 
 \section{Stock Movement Prediction}
 
-Stock movement prediction (SMP) aims to forecast future price direction or return magnitude using historical market data and auxiliary information. A fundamental challenge in this domain is the time-varying and regime-dependent nature of financial markets. Early empirical evidence by \citet{https://doi.org/10.1111/j.1540-6261.1989.tb02647.x} demonstrated that stock market volatility is persistent, clustered and strongly associated with macroeconomic uncertainty, recessions, and financial crises. Crucially, volatility dynamics are not constant over time, and no single macroeconomic factor fully explains their variation. This work established that financial markets are inherently non-stationary, with structural shifts in risk conditions occurring over time.
+Stock movement prediction (SMP)  aims to forecast future price direction or return magnitude using historical market data and auxiliary information. A fundamental challenge in this domain is the time-varying and regime-dependent nature of financial markets. Early empirical evidence by \citet{https://doi.org/10.1111/j.1540-6261.1989.tb02647.x} demonstrated that stock market volatility is persistent, clustered and strongly associated with macroeconomic uncertainty, recessions, and financial crises. Crucially, volatility dynamics are not constant over time, and no single macroeconomic factor fully explains their variation. This work established that financial markets are inherently non-stationary, with structural shifts in risk conditions occurring over time.
 
 The implication for prediction models is clear in that the assumptions of stable statistical relationships are often violated in practice. Forecasting systems must therefore operate under changing volatility regimes and evolving market conditions, motivating adaptive and sequence-aware modelling approaches.
 
@@ -260,6 +260,7 @@ To address this, \citet{hochreiter1997long} introduced the Long Short-Term Memor
 Subsequent analyses, including \citet{staudemeyer2019understandinglstmtutorial}, clarify that the strength of LSTMs lies in their gated structure and explicit memory cell. The separation between hidden state and cell state permits stable error propagation while protecting memory from irrelevant noise. This design enables LSTMs to model long-term temporal dependencies more reliably than earlier recurrent architectures.
 
 In time-series domains such as finance, where regime persistence and volatility clustering occur, the ability to retain information over extended periods is particularly relevant. However, LSTMs are not without limitations. Model capacity is finite, architectural design choices significantly influence performance, and increasing network size does not automatically guarantee improved long-term reasoning.
+\todo{LSTM DIAGRAM}
 
 \subsection{Gated Recurrent Units (GRU)}
 
@@ -268,18 +269,59 @@ The Gated Recurrent Unit (GRU) was introduced as a simplified variant of the LST
 Empirical comparisons, such as those conducted by \citet{Cahuantzi_2023}, suggest that GRUs often achieve performance comparable to LSTMs on moderately complex sequence tasks while offering improved computational efficiency. However, for highly complex or long-range dependency structures, LSTMs may demonstrate superior stability and representational capacity.
 
 In financial time-series modelling, this trade-off implies that GRUs may suffice for short-term pattern extraction, whereas LSTMs may better capture longer-term regime persistence and volatility dynamics. Consequently, both architectures remain widely adopted in stock movement prediction research.
+\todo{GRU DIAGRAM}
 
 \subsection{Bidirectional Variants}
 
 Bidirectional recurrent neural networks (BRNNs) extend standard RNN architectures by processing sequences in both forward and backward directions \citep{650093}. By combining hidden representations from past-to-future and future-to-past passes, bidirectional models leverage full-sequence context for each time step.
 
 Bidirectional architectures have demonstrated improved performance in tasks such as speech recognition and sequence classification(\cite{GRAVES2005602}, \cite{huang2015bidirectionallstmcrfmodelssequence}), and they form the basis of widely used models such as BiLSTM and BiGRU. However, in financial time-series applications, strict temporal ordering must be preserved to avoid information leakage. While bidirectional models may be appropriate in offline feature extraction or representation learning contexts, their use in predictive trading systems requires careful consideration to ensure causal integrity.
+\todo{Bi DIAGRAM}
 
 \subsection{Implications for Stock Movement Prediction}
 
 The progression from classical RNNs to gated recurrent architectures and their bidirectional extensions reflects a broader shift toward models capable of handling long-term dependencies, non-linearity, and temporal complexity. In financial markets—characterised by regime shifts, volatility clustering, and evolving dynamics—such properties are particularly valuable.
 
 Nevertheless, while deep sequence models have demonstrated strong statistical performance relative to classical baselines, their effectiveness remains sensitive to market conditions and evaluation methodology. This reinforces the importance of coupling architectural advances with robust evaluation, calibration, and economic assessment.
+
+\subsection{Ordinal Regression for Financial Returns}
+
+Financial returns are inherently ordered quantities rather than purely categorical variables. Binary classification (up/down) ignores magnitude information, while regression directly models continuous returns but may be sensitive to noise. Ordinal regression provides an intermediate formulation by discretising returns into ordered buckets, preserving directional and magnitude structure while improving robustness. This formulation enables the estimation of expected return ranges rather than simple direction, offering more informative signals for downstream capital allocation. 
+\todo{Insert Formula For Multi-Class Classification -- Deep and Interpretable Regression Models for Ordinal Outcomes Lucas Kook}
+
+\section{BERT for Natural Language Processing}
+
+The integration of textual information into stock prediction models has attracted increasing attention, as market prices often reflect narratives and sentiment not immediately captured by historical returns alone. \citet{xu-cohen-2018-stock} demonstrated that incorporating Twitter data alongside price time-series improves predictive performance relative to price-only baselines. Early approaches typically relied on static word embeddings (e.g., Word2Vec or GloVe) combined with recurrent or convolutional encoders to extract textual features. For example, \citet{he2022multimodalattentionnetworkstock} encoded textual posts using neural attention mechanisms alongside price features, while \citet{ijcai2020p626} model textual relationships through graph-based structures to capture inter-stock dependencies.
+
+These methods, however, depend on context-independent embeddings, where each word is represented by a fixed vector regardless of surrounding context. Transformer-based language models, particularly BERT \cite{devlin2019bertpretrainingdeepbidirectional}, address this limitation by generating contextualised embeddings in which a word’s representation depends on its sentence-level context. BERT employs a bidirectional self-attention mechanism, enabling it to capture long-range linguistic dependencies and nuanced semantic relationships more effectively than earlier recurrent encoders. \todo{BERT Transformer Diagram}
+
+Domain-specific adaptations such as FinBERT \cite{araci2019finbertfinancialsentimentanalysis} further improve performance in financial applications fine-tuning the model on financial corpora, enhancing its ability to interpret domain-specific terminology, sentiment, and stance. Empirical studies report consistent improvements across sentiment classification and financial text analysis tasks when using such pre-trained transformer models. \todo{Difference between BERT and FinBert}
+
+Despite these advances, textual signals in financial markets remain noisy, sparse, and temporally irregular. Careful alignment between text timestamps and market data is therefore essential to prevent information leakage. Furthermore, improvements in textual representation quality do not automatically translate into economic gains, reinforcing the need for integrated evaluation within realistic trading frameworks.
+
+\section{Probability Calibration}
+
+In classification models, outputs are often constrained to lie between zero and one, typically through sigmoid or softmax activations, and are therefore interpreted as probabilities. However, these values represent model confidence rather than true probabilistic quantities in the formal sense of Kolmogorov’s axioms \citep{PLATO2005960}, as demonstrated by \cite{guo2017calibrationmodernneuralnetworks}. A neural network does not estimate the objective probability of a stock moving up or down, rather, it produces a score reflecting patterns learned from the training data and encoded in its parameters.
+
+Even under ideal conditions—clean data, large sample sizes, and well-optimised architectures—it is unrealistic to expect model outputs to coincide exactly with empirical outcome frequencies. Deep neural networks are known to exhibit systematic overconfidence, particularly when trained to minimise cross-entropy loss. As a result, a predicted probability of 0.7 does not necessarily imply that the event occurs approximately 70\% of the time.
+
+This distinction is particularly consequential in financial applications. Capital allocation strategies such as the Kelly Criterion and MPT explicitly require probability estimates to determine optimal position sizing. If predicted probabilities are miscalibrated, allocation decisions can systematically overestimate or underestimate risk, leading to excessive leverage, unstable trading behaviour, and increased drawdowns. 
+
+A model is therefore said to be well-calibrated when its predicted probabilities align with observed empirical frequencies. Probability calibration methods aim to correct systematic distortions in model confidence, enabling outputs to be interpreted more reliably for downstream risk-sensitive decision-making.
+
+\subsection{Isotonic Regression}
+
+Isotonic regression is a non-parametric post-hoc calibration technique that fits a monotonic transformation to model outputs in order to align predicted confidence scores with empirical outcome frequencies. Originally proposed for probability estimation in supervised learning by \citet{10.1145/775047.775151}, isotonic regression relaxes parametric assumptions and instead learns a piecewise-constant monotonic mapping using the pool-adjacent-violators (PAV) algorithm. 
+
+This flexibility allows isotonic regression to correct systematic distortions in model confidence while preserving ranking. Empirical studies demonstrate that isotonic calibration can significantly improve probability estimates for binary and multiclass classification tasks \cite{10.5555/645530.655658, niculescu2005predicting}. However, because it is non-parametric and highly flexible, isotonic regression may overfit when calibration datasets are small, leading to unstable probability estimates in limited-data regimes \cite{guo2017calibrationmodernneuralnetworks}. \todo{Isotonic Calibration Diagram}
+
+\subsection{Temperature Scaling}
+
+Temperature scaling is a parametric post-hoc calibration method introduced for modern deep neural networks by \citet{guo2017calibrationmodernneuralnetworks}. The method rescales the logits of a trained classifier using a single scalar temperature parameter \(T > 0\), learned on a held-out validation set. The calibrated probabilities are obtained by applying the softmax function to the rescaled logits.
+
+Unlike non-parametric methods such as isotonic regression, temperature scaling preserves the relative ranking of predictions while correcting systematic overconfidence. Empirical evidence demonstrates that deep neural networks trained with cross-entropy loss are often miscalibrated, typically exhibiting overconfident predictions, and that temperature scaling substantially reduces calibration error without affecting classification accuracy \cite{guo2017calibrationmodernneuralnetworks}.
+
+Because it introduces only a single additional parameter, temperature scaling is less prone to overfitting than flexible non-parametric approaches and performs reliably even with limited calibration data. As a result, it has become a standard baseline for post-hoc probability calibration in deep learning applications. \todo{Temp Scaling Diagram}
 
 %==================================================================================================================================
 \chapter{Analysis/Requirements}
