@@ -117,7 +117,7 @@ The purpose of this project is to design and evaluate an end-to-end, multi-horiz
 
 This work builds upon \textit{Stock Movement Prediction from Tweets and Historical Prices} by \citet{xu-cohen-2018-stock}, which is used as a baseline for comparison. However, the focus of this project extends beyond next-day prediction and single-model evaluation by exploring variable forecasting horizons, multimodal feature integration and multiple predictive model formulations. Crucially, the value of these predictive signals is assessed through their interaction with capital allocation strategies in a simulated trading environment, rather than through benchmarking metrics alone. To account for non-stationarity and regime shifts, the proposed system incorporates prior predictions and their realised errors as meta-features, enabling the model to capture time-varying predictive reliability.
 
-To this end, the dissertation evaluates multiple deep-learning architectures and systematically examines their integration with several capital allocation strategies, including full Kelly, fractional Kelly, mean--variance portfolio theory (MPT) and a hybrid fractional Kelly-MPT approach. By jointly analysing predictive performance, calibration quality and financial outcomes, this project aims to bridge the gap between statistical forecasting and practical investment decision-making.
+To this end, the dissertation evaluates multiple deep-learning architectures and systematically examines their integration with several capital allocation strategies, including full Kelly, fractional Kelly, mean-variance portfolio theory (MPT) and a hybrid fractional Kelly-MPT approach. By jointly analysing predictive performance, calibration quality and financial outcomes, this project aims to bridge the gap between statistical forecasting and practical investment decision-making.
 
 \subsection{Contributions}
 
@@ -156,13 +156,13 @@ This dissertation is organised into eight chapters.
 
 Chapter 2, \textit{Background and Related Work}, reviews prior research in stock movement prediction and outlines the key theoretical foundations of the project, including LSTM and GRU models, bidirectional variants, ordinal regression, BERT, probability calibration methods (isotonic regression and temperature scaling), the Kelly Criterion, mean-variance portfolio theory (MPT) and the use of meta-features.
 
-Chapter 3, \textit{Analysis and Research Questions}, formalises the problem setting, defines the prediction tasks, discusses constraints such as temporal integrity and non-stationarity as well as presenting the research questions guiding the evaluation.
+Chapter 3, \textit{Research Questions}, formalises the problem setting, defines the prediction tasks, discusses constraints such as temporal integrity and non-stationarity as well as presenting the research questions guiding the evaluation.
 
-Chapter 4, \textit{System Design}, describes the architecture of the end-to-end trading framework, including multimodal data integration, model formulations for direction and magnitude prediction, meta-feature incorporation, calibration strategy and the investment simulation design.
+Chapter 4, \textit{Design}, describes the architecture of the end-to-end trading framework, including multimodal data integration, model formulations for direction and magnitude prediction, meta-feature incorporation, calibration strategy and the investment simulation design.
 
 Chapter 5, \textit{Implementation}, outlines the practical realisation of the system, covering data preprocessing, feature engineering, model training, calibration, and capital allocation within a walk-forward simulation environment.
 
-Chapter 6, \textit{Evaluation and Results}, reports predictive performance, calibration quality, and economic outcomes such as return, drawdown, and risk-adjusted measures, alongside comparative analyses of model and allocation strategies.
+Chapter 6, \textit{Results}, reports predictive performance, calibration quality, and economic outcomes such as return, drawdown, and risk-adjusted measures, alongside comparative analyses of model and allocation strategies.
 
 Chapter 7, \textit{Discussion}, interprets the findings in relation to the research questions and reflects on the interaction between multimodal prediction, model reliability, calibration, and capital allocation.
 
@@ -229,26 +229,6 @@ In parallel, robustness to market noise has been explored through adversarial tr
 
 More recent work has investigated multi-scale modelling and extended temporal windows, demonstrating that incorporating longer historical context can further improve statistical performance. Nevertheless, across these multimodal approaches, evaluation remains predominantly focused on classification metrics such as accuracy and MCC. Label filtering and the absence of cost-aware economic assessment are recurring limitations, leaving open the question of whether statistical improvements translate into meaningful financial performance.
 
-\subsection{Limitations in Existing Literature}
-
-Across these studies, several patterns emerge:
-
-\begin{itemize}
-    \item Deep sequence models generally outperform classical statistical baselines under proper temporal evaluation.
-    \item Multimodal fusion of textual and price data often yields incremental predictive gains.
-    \item Robustness mechanisms (e.g., adversarial training, multi-scale modelling) improve statistical performance.
-\end{itemize}
-
-However, many studies:
-\begin{itemize}
-    \item Evaluate performance primarily using accuracy or correlation-based metrics.
-    \item Apply filtering techniques that simplify the prediction task.
-    \item Do not assess economic value under realistic trading costs.
-    \item Assume static model reliability despite regime-dependent volatility.
-\end{itemize}
-
-These limitations motivate a more integrated approach that jointly considers predictive modelling, uncertainty estimation, model reliability, and economic performance within a unified evaluation framework.
-
 \section{Deep Learning for Time-Series Modelling}
 
 Early recurrent neural networks (RNNs) were theoretically well-suited for sequence modelling but struggled in practice due to the vanishing and exploding gradient problem. As demonstrated by \citet{hochreiter1997long}, gradients propagated through time either decay or grow exponentially as sequence length increases, preventing effective learning of long-term dependencies. This limitation makes standard RNNs unreliable for tasks requiring memory over extended time horizons.
@@ -280,7 +260,7 @@ Bidirectional architectures have demonstrated improved performance in tasks such
 
 \subsection{Implications for Stock Movement Prediction}
 
-The progression from classical RNNs to gated recurrent architectures and their bidirectional extensions reflects a broader shift toward models capable of handling long-term dependencies, non-linearity, and temporal complexity. In financial markets—characterised by regime shifts, volatility clustering, and evolving dynamics—such properties are particularly valuable.
+The progression from classical RNNs to gated recurrent architectures and their bidirectional extensions reflects a broader shift toward models capable of handling long-term dependencies, non-linearity, and temporal complexity. In financial markets, characterised by regime shifts, volatility clustering, and evolving dynamics—such properties are particularly valuable.
 
 Nevertheless, while deep sequence models have demonstrated strong statistical performance relative to classical baselines, their effectiveness remains sensitive to market conditions and evaluation methodology. This reinforces the importance of coupling architectural advances with robust evaluation, calibration, and economic assessment.
 
@@ -335,22 +315,79 @@ Incorporating prior predictions and realised errors as meta-features extends thi
 
 By explicitly modelling reliability dynamics, predictive systems may improve stability and reduce overconfidence during adverse market conditions, thereby supporting more consistent downstream decision-making.
 \todo{Diagram of Staking?}
+
+\section{Capital Allocation Strategies }
+
+Prediction alone does not determine profitability. Position sizing plays a crucial role in investment performance
+
+\subsection{The Kelly Criterion}
+
+Introduced by Kelly (1956), the Kelly Criterion derives the optimal fraction of capital to allocate to a favourable bet in order to maximise long-term logarithmic wealth growth \citep{https://doi.org/10.1002/j.1538-7305.1956.tb03809.x}. The original formulation arose from information theory and the analysis of signal transmission over noisy communication channels. It was later adapted to gambling and financial markets, where it provides a principled framework for capital allocation under probabilistic uncertainty \citep{doi:10.1142/9789814293501_0005, thorp2008, maclean}.
+
+For a binary outcome with success probability $p$ and net odds $b$, the optimal Kelly fraction is given by
+
+\[
+f^* = \frac{bp - (1 - p)}{b},
+\]
+
+where:
+
+\begin{itemize}
+    \item $f^*$ denotes the optimal fraction of available capital to allocate to the risky position;
+    \item $p$ represents the estimated probability of a favourable outcome;
+    \item $1 - p$ is the probability of an unfavourable outcome;
+    \item $b$ denotes the net payoff ratio (i.e., the profit per unit stake if the outcome is favourable).
+\end{itemize}
+
+obtained by maximising expected logarithmic utility. In financial applications, this formulation links predicted probabilities directly to position sizing, making the reliability of probability estimates critical for stable portfolio growth.
+
+\subsection{Mean-Variance Portfolio Theory (MPT)}
+
+Introduced by Markowitz (1952), MPT frames construction as an optimisation problem balancing expected return against risk \citep{markowitz1952}. 
+
+Formally, the mean–variance optimisation problem can be written as:
+
+\[
+\max_{\mathbf{w}} \quad \mathbf{w}^\top \boldsymbol{\mu} 
+- \lambda \mathbf{w}^\top \Sigma \mathbf{w},
+\]
+
+where:
+\begin{itemize}
+    \item $\mathbf{w}$ denotes portfolio weights;
+    \item $\boldsymbol{\mu}$ expected returns;
+    \item $\Sigma$ the covariance matrix;
+    \item $\lambda$ a risk-aversion parameter.
+\end{itemize}
+
+MPT emphasises diversification and covariance structure across assets, stated by \cite{markowitz1959}, contrasting with single-asset Kelly Sizing. While Kelly maximises growth under independent bets, MPT explicitly accounts for cross-asset risk interactions.
+
+The integration of probability-based sizing with diversification principles motivates hybrid allocation approaches \citep{peterson2018kellyscriterionportfoliooptimization}.
+
 %==================================================================================================================================
-\chapter{Analysis/Requirements}
-What is the problem that you want to solve, and how did you arrive at it?
-\section{Guidance}
-Make it clear how you derived the constrained form of your problem via a clear and logical process. 
+\chapter{Research Questions}
+\subsection{Limitations in Existing Literature}
 
-The analysis chapter explains the process by which you arrive at a concrete design. In software 
-engineering projects, this will include a statement of the requirement capture process and the
-derived requirements.
+Across these studies, several patterns emerge:
+\begin{itemize}
+    \item Deep sequence models generally outperform classical statistical baselines under proper temporal evaluation.
+    \item Multimodal fusion of textual and price data often yields incremental predictive gains.
+    \item Robustness mechanisms (e.g., adversarial training, multi-scale modelling) improve statistical performance.
+\end{itemize}
 
-In research projects, it will involve developing a design drawing on
-the work established in the background, and stating how the space of possible projects was
-sensibly narrowed down to what you have done.
+However, many studies:
+\begin{itemize}
+    \item Evaluate performance primarily using accuracy or correlation-based metrics.
+    \item Apply filtering techniques that simplify the prediction task.
+    \item Do not assess economic value under realistic trading costs.
+    \item Assume static model reliability despite regime-dependent volatility.
+\end{itemize}
 
+These limitations motivate a more integrated approach that jointly considers predictive modelling, uncertainty estimation, model reliability, and economic performance within a unified evaluation framework.
 %==================================================================================================================================
 \chapter{Design}
+\todo{Application of the Kelly Criterion to Prediction Markets
+Bernhard K Meister, probablity and }
 How is this problem to be approached, without reference to specific implementation details? 
 \section{Guidance}
 Design should cover the abstract design in such a way that someone else might be able to do what you did, 
