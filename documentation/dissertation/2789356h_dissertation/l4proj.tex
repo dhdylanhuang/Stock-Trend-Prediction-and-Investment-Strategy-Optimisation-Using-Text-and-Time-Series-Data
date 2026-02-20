@@ -24,7 +24,7 @@
 %==============================================================================
 %% ABSTRACT
 \begin{abstract}
-This dissertation addresses the gap between accuracy-based metrics and economic value by integrating multi-modal predictions, probability calibration and principled capital allocation into a single end-to-end framework, evaluating whether diverse predictive signals fed into multiple deep-learning architectures (LSTM \& GRU variants) trained to predict stock direction and magnitude can yield robust and trustworthy forecasts implemented with risk-aware capital allocation strategies.
+This dissertation addresses the gap in stock market prediction between accuracy-based metrics and economic value by integrating multi-modal predictions, probability calibration and principled capital allocation into a single end-to-end framework, evaluating whether diverse predictive signals fed into multiple deep-learning architectures (LSTM \& GRU variants) trained to predict stock direction and magnitude can yield robust and trustworthy forecasts implemented with risk-aware capital allocation strategies.
 
 The framework incorporates prior model predictions and their historical errors as meta-features, enabling the system to learn when its outputs should be trusted. In addition, a variable-horizon forecasting approach is employed to move beyond traditional fixed-horizon models, allowing the system to capture both short-term fluctuations and long-term trends.
 
@@ -323,6 +323,18 @@ Unlike non-parametric methods such as isotonic regression, temperature scaling p
 
 Because it introduces only a single additional parameter, temperature scaling is less prone to overfitting than flexible non-parametric approaches and performs reliably even with limited calibration data. As a result, it has become a standard baseline for post-hoc probability calibration in deep learning applications. \todo{Temp Scaling Diagram}
 
+\section{Meta-Features and Model Self-Assessment}
+
+Financial markets are inherently non-stationary, with volatility, return dynamics, and cross-asset relationships evolving across economic cycles and structural shifts. As surveyed by \citet{repec:eee:empfin:v:9:y:2002:i:5:p:495-510}, financial time-series exhibit high volatility, nonlinear dependencies, and regime changes associated with macroeconomic shocks, crises, and policy transitions. These characteristics imply that predictive relationships are unstable over time and that model performance may deteriorate as market conditions change.
+
+Despite this, many predictive systems implicitly assume static reliability, treating model outputs as equally trustworthy across all market regimes. Prior forecasting errors are rarely incorporated into subsequent predictions, despite containing information about recent model performance and potential regime shifts.
+
+\cite{repec:eee:empfin:v:9:y:2002:i:5:p:495-510} discuss the value of hybrid approaches in financial forecasting, combining complementary techniques such as evolutionary algorithms and neural networks to enhance predictive robustness in complex and potentially non-stationary market environments. Similarly, \cite{VARSHNEY2024123487} show that stacked deep learning architectures can achieve consistently lower out-of-sample forecasting errors, reporting reductions in MSE and MAE across heterogeneous time-series datasets, suggesting a potential pathway towards improved predictive stability under evolving data conditions.
+
+Incorporating prior predictions and realised errors as meta-features extends this adaptive perspective by modelling time-varying predictive reliability directly within the forecasting pipeline. Rather than assuming constant model confidence, such an approach allows the system to adjust implicitly to recent performance degradation. This idea is conceptually related to meta-learning and adaptive model weighting, yet its integration within deep learning-based financial trading systems remains relatively limited.
+
+By explicitly modelling reliability dynamics, predictive systems may improve stability and reduce overconfidence during adverse market conditions, thereby supporting more consistent downstream decision-making.
+\todo{Diagram of Staking?}
 %==================================================================================================================================
 \chapter{Analysis/Requirements}
 What is the problem that you want to solve, and how did you arrive at it?
