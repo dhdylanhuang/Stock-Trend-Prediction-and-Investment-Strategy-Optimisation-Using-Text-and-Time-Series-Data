@@ -156,7 +156,7 @@ This dissertation is organised into eight chapters.
 
 Chapter 2, \textit{Background and Related Work}, reviews prior research in stock movement prediction and outlines the key theoretical foundations of the project, including LSTM and GRU models, bidirectional variants, ordinal regression, BERT, probability calibration methods (isotonic regression and temperature scaling), the Kelly Criterion, mean-variance portfolio theory (MPT) and the use of meta-features.
 
-Chapter 3, \textit{Research Questions}, formalises the problem setting, defines the prediction tasks, discusses constraints such as temporal integrity and non-stationarity as well as presenting the research questions guiding the evaluation.
+Chapter 3, \textit{Analysis and Research Questions}, formalises the problem setting, defines the prediction tasks, discusses constraints such as temporal integrity and non-stationarity as well as presenting the research questions guiding the evaluation.
 
 Chapter 4, \textit{Design}, describes the architecture of the end-to-end trading framework, including multimodal data integration, model formulations for direction and magnitude prediction, meta-feature incorporation, calibration strategy and the investment simulation design.
 
@@ -365,29 +365,303 @@ MPT emphasises diversification and covariance structure across assets, stated by
 The integration of probability-based sizing with diversification principles motivates hybrid allocation approaches \citep{peterson2018kellyscriterionportfoliooptimization}.
 
 %==================================================================================================================================
-\chapter{Research Questions}
-\subsection{Limitations in Existing Literature}
+\chapter{Analysis and Research Questions}
 
-Across these studies, several patterns emerge:
+The literature on stock movement prediction reveals several consistent findings:
+
 \begin{itemize}
-    \item Deep sequence models generally outperform classical statistical baselines under proper temporal evaluation.
-    \item Multimodal fusion of textual and price data often yields incremental predictive gains.
-    \item Robustness mechanisms (e.g., adversarial training, multi-scale modelling) improve statistical performance.
+    \item Deep sequence models frequently outperform classical statistical baselines when evaluated using temporally ordered validation.
+    \item Incorporating textual information alongside price-based features can provide incremental predictive gains.
+    \item Architectural and training enhancements, such as adversarial learning and multi-scale modelling, improve statistical performance.
 \end{itemize}
 
-However, many studies:
+Despite these advances, important limitations remain:
+
 \begin{itemize}
-    \item Evaluate performance primarily using accuracy or correlation-based metrics.
-    \item Apply filtering techniques that simplify the prediction task.
-    \item Do not assess economic value under realistic trading costs.
-    \item Assume static model reliability despite regime-dependent volatility.
+    \item Evaluation is typically restricted to accuracy, correlation, or classification-based metrics, with limited consideration of economic outcomes.
+    \item Filtering strategies, such as threshold-based label exclusion, are often applied, simplifying the prediction task and potentially inflating reported performance.
+    \item Transaction costs, turnover, and capital constraints are frequently omitted from evaluation.
+    \item Model reliability is generally assumed to be static, despite well-documented regime shifts and volatility clustering in financial markets.
+    \item Methodological heterogeneity across studies makes cross-paper comparisons and ablation analysis difficult.
 \end{itemize}
 
-These limitations motivate a more integrated approach that jointly considers predictive modelling, uncertainty estimation, model reliability, and economic performance within a unified evaluation framework.
+These observations motivate a more integrated formulation of the stock prediction problem that jointly considers predictive accuracy, probabilistic reliability, and capital allocation under realistic market constraints.
+
+\section{Problem Definition}
+
+The objective of this dissertation is to develop and evaluate an end-to-end probabilistic stock movement prediction and capital allocation framework, assessed under realistic walk-forward market conditions.
+
+\subsection{Prediction Task}
+
+The predictive component consists of two primary objectives.
+
+\begin{enumerate}
+    \item \textbf{Directional Probability Estimation:}  
+    Estimate the probability that a given asset will experience a positive return over a fixed forecast horizon $H$.
+
+    \item \textbf{Directional Magnitude Estimation:}  
+    Model return magnitude using ordinal multi-class classification rather than continuous regression. Returns are discretised into ordered buckets, enabling estimation of expected return categories while preserving directional structure.
+\end{enumerate}
+
+Formally, for asset $i$ at time $t$, the model estimates:
+
+\[
+\hat{p}_{i,t} = \mathbb{P}(R_{i,t+H} > 0 \mid \mathcal{F}_t),
+\]
+
+where $R_{i,t+H}$ denotes the return over horizon $H$, and $\mathcal{F}_t$ represents the information set available at time $t$.
+
+\subsection{Decision Layer}
+
+Predicted probabilities are not the final objective. Instead, they are transformed into investment decisions through two sequential components:
+
+\begin{enumerate}
+    \item \textbf{Probability Calibration:}  
+    Post-hoc calibration methods, including isotonic regression and temperature scaling, are applied to improve probabilistic reliability.
+
+    \item \textbf{Capital Allocation:}  
+    Calibrated probabilities are converted into position sizes using alternative allocation strategies:
+    \begin{itemize}
+        \item Full Kelly
+        \item Fractional Kelly
+        \item Mean–Variance Portfolio Theory (MPT)
+        \item Hybrid fractional Kelly–MPT allocation
+    \end{itemize}
+\end{enumerate}
+
+\paragraph{Early Exit Mechanism.}
+For positions held over multi-day horizons ($H > 1$), the framework includes a dynamic early-exit rule: if the next-day predicted probability indicates a sufficiently high likelihood of negative return, the position is liquidated prior to maturity. This mechanism allows adaptive horizon adjustment and mitigates adverse drift under changing market conditions.
+
+This structure enables the joint evaluation of predictive accuracy, probabilistic reliability, and economic performance.
+
+\section{Constraints and Assumptions}
+
+The proposed framework operates under realistic financial and statistical constraints, reflecting both empirical asset pricing practice and practical portfolio management considerations.
+
+\subsection{Temporal Integrity and Information Structure}
+
+Strict temporal integrity is enforced throughout the pipeline to eliminate lookahead bias. Targets are defined using forward returns, while all features are constructed using information available at or prior to time $t$. Model training, validation, and testing follow a walk-forward (expanding window) procedure to ensure that parameter estimation relies exclusively on historical data.
+
+This design mirrors the predictive regression framework of \cite{FAMA19883}, where returns over $(t, t+T)$ are regressed on state variables observed at time $t$, thereby preserving causal ordering and economic validity.
+
+\subsection{Market Non-Stationarity}
+
+Financial markets are inherently non-stationary. The data-generating process for returns, volatility, and cross-asset correlations evolves across macroeconomic regimes. Consequently:
+
+\begin{itemize}
+    \item Model reliability is time-varying,
+    \item Calibration may degrade across structural breaks,
+    \item Estimated probabilities may drift out of distribution.
+\end{itemize}
+
+The allocation layer must therefore remain robust to prediction instability and regime shifts rather than assuming parameter constancy.
+
+\subsection{Capital, Risk, and Leverage Constraints}
+
+Capital is finite and position sizes must satisfy feasibility and risk constraints. In particular:
+
+\begin{itemize}
+    \item Leverage limits restrict exposure,
+    \item Portfolio weights must satisfy budget constraints,
+    \item Estimation error can induce over-allocation.
+\end{itemize}
+
+Both Kelly sizing and Mean-Variance (MPT) optimisation are highly sensitive to input estimation error. Overconfident probability estimates or inflated Sharpe ratios can lead to excessive leverage and catastrophic drawdowns. As demonstrated in the literature on backtest overfitting and estimation error amplification \citep{Bailey13, LopezdePrado2018-LPEAIF}, robust capital allocation requires shrinkage, fractional Kelly scaling, or risk caps to mitigate tail risk.
+
+\section{Research Questions}
+
+This dissertation is guided by the following research questions, structured to evaluate the predictive, probabilistic, and economic components of the proposed framework.
+
+\subsection*{RQ1. Predictive Performance}
+
+Does incorporating textual information alongside price-based features improve directional and magnitude prediction performance under strict temporal validation?
+
+Specifically:
+
+\begin{itemize}
+    \item Which transformer-based language model provides the strongest predictive signal?
+    \item Which feature configurations perform best for:
+    \begin{itemize}
+        \item Binary classification (directional prediction),
+        \item Ordinal multi-class classification (return magnitude),
+        \item Regression-based return estimation?
+    \end{itemize}
+\end{itemize}
+
+\subsection*{RQ2. Probability Calibration}
+
+Does probability calibration improve the reliability and economic stability of probability-based capital allocation strategies?
+
+In particular:
+
+\begin{itemize}
+    \item Does calibration reduce model overconfidence?
+    \item Does improved calibration lead to smoother capital growth under Kelly-based sizing?
+    \item How does calibration influence drawdown behaviour and risk-adjusted performance?
+\end{itemize}
+
+\subsection*{RQ3. Meta-Features and Reliability Modelling}
+
+Does incorporating previous prediction outcomes and realised error statistics as meta-features improve model stability under non-stationary market conditions?
+
+This question evaluates whether explicit modelling of time-varying predictive reliability enhances robustness and reduces performance degradation across regimes.
+
+\subsection*{RQ4. Allocation Strategy Comparison}
+
+How do different capital allocation strategies compare in terms of economic performance when applied to identical predictive signals?
+
+The strategies evaluated include:
+
+\begin{itemize}
+    \item Full Kelly,
+    \item Fractional Kelly,
+    \item Mean–Variance Portfolio Theory (MPT),
+    \item Hybrid fractional Kelly–MPT allocation.
+\end{itemize}
+
+\subsection*{RQ5. Interaction Effects}
+
+How do probability calibration and capital allocation method interact to influence long-term capital growth, volatility, and maximum drawdown?
+
+This question investigates system-level effects beyond isolated component analysis.
+
+\section{Evaluation Requirements}
+
+Evaluation is conducted across three complementary layers: predictive performance, probabilistic reliability, and economic outcomes. This multi-layered framework ensures that statistical accuracy, probability validity, and financial viability are jointly assessed.
+
+\subsection{Predictive Metrics}
+
+\paragraph{Classification and Ordinal Tasks.}
+For directional and ordinal multi-class prediction, the primary metric is the Matthews Correlation Coefficient (MCC), which is particularly appropriate for imbalanced classification problems and was used in prior stock prediction literature \citealp{xu-cohen-2018-stock} allowing for direct comparison. 
+
+For binary classification, MCC is defined as:
+
+\[
+\mathrm{MCC} = 
+\frac{TP \cdot TN - FP \cdot FN}
+{\sqrt{(TP + FP)(TP + FN)(TN + FP)(TN + FN)}},
+\]
+
+where $TP$, $TN$, $FP$, and $FN$ denote true positives, true negatives, false positives, and false negatives respectively.
+
+Additional classification metrics include:
+
+\begin{itemize}
+    \item F1-score,
+    \item Precision,
+    \item Recall,
+    \item Directional Accuracy.
+\end{itemize}
+
+\paragraph{Regression Tasks.}
+For return magnitude estimation, the primary metric is Mean Absolute Error (MAE):
+
+\[
+\mathrm{MAE} = \frac{1}{N} \sum_{i=1}^{N} |y_i - \hat{y}_i|.
+\]
+
+MAE is preferred over Mean Squared Error (MSE) in financial return forecasting because financial returns exhibit heavy tails and outliers, with MAE being less sensitive to extreme deviations it therefore provides a more robust estimate of average prediction error \citep{2017EGUGA..19.3574B}.
+
+To enable direct comparison with classification models, regression outputs are converted into directional signals based on the sign of the predicted return, and the MCC is computed on the resulting binary outcomes.
+
+\subsection{Calibration and Reliability Metrics}
+
+To assess probabilistic reliability, both classification-based and regression-based calibration metrics are used for meta features.
+
+\paragraph{Classification Calibration.}
+\begin{itemize}
+    \item Brier Score:
+    \[
+    \mathrm{Brier} = \frac{1}{N} \sum_{i=1}^{N} (p_i - y_i)^2
+    \]
+    \item Log Loss (Cross-Entropy)
+    \item Rolling-window reliability measures (e.g., 20-day brier score, log loss and 
+\end{itemize}
+
+These metrics evaluate the consistency between predicted probabilities and realised outcomes.
+
+\paragraph{Regression-Based Reliability Metrics.}
+For meta-modelling of predictive reliability, additional diagnostics are computed:
+
+\begin{itemize}
+    \item MAE and MSE on next-day realised returns,
+    \item Directional accuracy derived from regression sign,
+    \item Rolling-window reliability measures (e.g., 20-day MAE, RMSE, and directional accuracy).
+\end{itemize}
+
+Rolling reliability statistics are constructed in a leak-safe manner, ensuring that only historical prediction errors are used when generating meta-features.
+
+\subsection{Economic Metrics}
+
+The ultimate objective of the framework is economic viability rather than statistical accuracy alone. Allocation strategies are therefore evaluated using established portfolio performance metrics that capture both growth and risk characteristics.
+
+\begin{itemize}
+
+\item \textbf{Cumulative Return (Return on Investment (ROI):}  
+
+Cumulative return measures total capital growth over the evaluation period and reflects the compounding effect of sequential returns. It is fundamental in assessing whether a strategy generates positive long-term wealth \citep{Thorp1997, elton}.
+
+\[
+CR = \prod_{t=1}^{T} (1 + r_t) - 1,
+\]
+
+where $r_t$ denotes the portfolio return at time $t$.
+
+\item \textbf{Volatility:}  
+
+Volatility represents the dispersion of portfolio returns and serves as a proxy for total risk. In mean–variance theory, variance (or standard deviation) is the primary measure of portfolio risk \citep{markowitz1952}.
+
+\[
+\sigma = \sqrt{\frac{1}{T-1} \sum_{t=1}^{T} (r_t - \bar{r})^2},
+\]
+
+where $\bar{r}$ is the mean portfolio return.
+
+\item \textbf{Sharpe Ratio:}  
+
+Originally termed the ``reward-to-variability ratio,'' the Sharpe Ratio was introduced by \cite{sharperatio} as a measure of risk-adjusted performance. It evaluates excess return relative to return volatility, allowing comparison of portfolios on a risk-normalised basis.
+
+\[
+\text{Sharpe} = \frac{\bar{r} - r_f}{\sigma},
+\]
+
+where $r_f$ is the risk-free rate and $\sigma$ is the standard deviation of returns.
+
+\item \textbf{Maximum Drawdown:}  
+
+Maximum drawdown quantifies the largest peak-to-trough decline in portfolio value over the evaluation horizon. It captures downside risk and capital erosion, which are particularly important under leverage-sensitive allocation methods such as Kelly sizing.
+
+\[
+\text{MDD} = \max_{t \in [1,T]} 
+\left(
+\frac{\max_{s \le t} P_s - P_t}{\max_{s \le t} P_s}
+\right),
+\]
+
+where $P_t$ denotes portfolio value at time $t$.
+
+\item \textbf{Turnover:}  
+
+Turnover measures the magnitude of portfolio rebalancing and directly influences transaction costs. High turnover can materially reduce realised returns in practical trading environments.
+
+\[
+\text{Turnover} = 
+\frac{1}{T} 
+\sum_{t=1}^{T} 
+\sum_{i=1}^{N} 
+|w_{i,t} - w_{i,t-1}|,
+\]
+
+where $w_{i,t}$ denotes the portfolio weight of asset $i$ at time $t$.
+
+\end{itemize}
+
+All economic metrics are computed under walk-forward simulation with transaction costs incorporated, ensuring realistic assessment of capital growth, risk exposure, and trading frictions.
 %==================================================================================================================================
 \chapter{Design}
 \todo{Application of the Kelly Criterion to Prediction Markets
 Bernhard K Meister, probablity and }
+\todo{Walk-Forward/ expanding window training in simulation, White 2000, bailey et al. 2014, de prado 2018, gu, kelly and xiu 2010}
 How is this problem to be approached, without reference to specific implementation details? 
 \section{Guidance}
 Design should cover the abstract design in such a way that someone else might be able to do what you did, 
@@ -405,6 +679,8 @@ You can't talk about everything. Cover the high level first, then cover importan
 \section{General guidance for technical writing}
 
 These points apply to the whole dissertation, not just this chapter.
+
+\todo{No shuffling on time ordered splits Bergmeir \& Benítez (2012), Bergmeir, Hyndman \& Koo (2018), De Prado (2018) }
 
 \subsection{Figures}
 \emph{Always} refer to figures included, like Figure \ref{fig:relu}, in the body of the text. Include full, explanatory captions and make sure the figures look good on the page.
