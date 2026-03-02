@@ -13,10 +13,15 @@ This project builds an end‑to‑end pipeline for stock trend prediction using 
 - `results/` saved benchmarking outputs.
 - `documentation/` dissertation and supporting material.
 
+**Project Structure**
+See [FileStructure.md](./FileStructure.md) for a detailed Mermaid diagram of the file structure.
+
+**Pipeline Architecture**
+
 **Key Notebooks**
 - `data-pre-processing/Data_PreProcessing_1.ipynb` tweet parsing/cleaning and parquet output.
-- `data-pre-processing/Data_PreProcessing_2.ipynb` stock table cleaning (tab‑separated) to parquet.
-- `data-pre-processing/Data_PreProcessing_3.ipynb` additional tweet normalization/cleaning.
+- `data-pre-processing/Data_PreProcessing_2.ipynb` stock table cleaning (tab‑separated) to parquet, used for exploration.
+- `data-pre-processing/Data_PreProcessing_3.ipynb` tweet normalization/cleaning.
 - `feat-engineering/NLP_1_Sentiment_Scoring.ipynb` tweet sentiment scoring.
 - `feat-engineering/NLP_2_0_Emotion_Scoring.ipynb` raw emotion scoring + percentile features.
 - `feat-engineering/NLP_2_1_Emotion_Engineering.ipynb` unified emotion features.
@@ -26,6 +31,9 @@ This project builds an end‑to‑end pipeline for stock trend prediction using 
 - `feat-engineering/Sector_Features.ipynb` sector‑level features.
 - `feat-engineering/Meta_Features.ipynb` meta‑model signals and reliability features.
 - `benchmarking/Benchmarking.ipynb` main training/evaluation pipeline.
+- `benchmarking/MultiClass_Benchmarking.ipynb` main training/evaluation pipeline using multiclass labels.
+- `benchmarking/Benchmarking_GPU.ipynb` main training/evaluation pipeline automated and run on University GPU cluster.
+- `benchmarking/MultiClass_Benchmarking_GPU.ipynb` main training/evaluation pipeline using multiclass labels automated and run on University GPU cluster.
 - `simulation/Invesment_Simulation_System.ipynb` and `simulation/MultiClass_Invesment_Simulation_System.ipynb`.
 
 **Data Expectations**
@@ -37,6 +45,8 @@ Used in all benchmarking notebooks:
 - Train: `2014-01-01` to `2015-08-01`
 - Validation: `2015-08-01` to `2015-10-01`
 - Test: `2015-10-01` to `2016-01-01`
+
+**Investment Simulation Splits**
 
 **Quickstart**
 1. Place raw dataset in `data/stocknet-dataset/`.
