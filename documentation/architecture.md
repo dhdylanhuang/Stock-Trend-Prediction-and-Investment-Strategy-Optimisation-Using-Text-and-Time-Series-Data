@@ -27,8 +27,7 @@ flowchart LR
     direction TB
     P --> J1["Join / Align on ticker + date"]
     Tn --> J1
-    Tm -. optional .-> J1
-    J1 --> M["master_df.parquet"]
+    J1 --> M["stock_tweets.parquet"]
     M --> F1["Feature Engineering<br/>(Technical + NLP + Sector)"]
   end
 
@@ -56,9 +55,15 @@ flowchart LR
   %% Meta features
   %% ----------------------
   subgraph MF["Meta Features"]
-    direction TB
+    direction LR
+    MF_IN((in))
     M1["Meta Features<br/>Meta_Features.ipynb"]
-    M2["Meta Features (Multiclass)"]
+    ME["Early Exit"]
+    MF_OUT((out))
+    MF_IN --> M1
+    MF_IN --> ME
+    M1 --> MF_OUT
+    ME --> MF_OUT
   end
 
   %% ----------------------
@@ -66,16 +71,18 @@ flowchart LR
   %% ----------------------
   subgraph SIM[Investment Simulation]
     direction TB
-    M1 --> S1["Investment Simulation<br/>Invesment_Simulation_System.ipynb"]
-    M2 --> S2["Investment Simulation (Multiclass)"]
+    SIM_IN((in))
+    S1["Investment Simulation<br/>Invesment_Simulation_System.ipynb"]
+    S2["Investment Simulation (Multiclass)"]
   end
 
   B1 --> BH_IN
   B2 --> BH_IN
-  BH_OUT --> M1
-  BH_OUT --> M2
+  BH_OUT --> MF_IN
+  MF_OUT --> SIM_IN
+  SIM_IN --> S1
+  SIM_IN --> S2
   M1 -. iterate .-> BH_IN
-  M2 -. iterate .-> BH_IN
 
   H --> O
   S1 --> O["Results & Reports<br/>results/*"]
