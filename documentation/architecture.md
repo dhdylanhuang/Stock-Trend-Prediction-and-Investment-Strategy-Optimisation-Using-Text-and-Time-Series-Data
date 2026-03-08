@@ -17,7 +17,7 @@ flowchart LR
     B --> P["stock_prices.parquet"]
     D --> T["stock_tweets.parquet"]
     T --> Tm["merged_stock_tweet.parquet<br/>(optional aggregate)"]
-    T --> Tn["stock_tweet_nomerge.parquet<br/>(per‑tweet)"]
+    T --> Tn["stock_tweet_nomerge.parquet<br/>(per-tweet)"]
   end
 
   %% ----------------------
