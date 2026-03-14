@@ -1,96 +1,102 @@
-# System Architecture
-
-Below is the end‑to‑end workflow for both **multiclass** and **binary/regression** tracks. The pipeline starts from raw price and raw tweet data, and proceeds through cleaning, joining, feature engineering, hyperparameter tuning, meta‑features, second tuning, and investment simulation.
-
-```mermaid
----
-id: 02318f88-ee84-4c63-b4a8-b9bcc67a15fb
----
 flowchart LR
-  %% ----------------------
-  %% Data preparation
-  %% ----------------------
-  subgraph DP[Data Preparation]
+ subgraph DP["Data Preparation"]
     direction TB
-    A["Raw Prices<br/>data/stocknet-dataset/price/raw"] --> B["Clean & Tidy Prices<br/>Data_PreProcessing_1.ipynb"]
-    C["Raw Tweets<br/>data/stocknet-dataset/tweet/preprocessed"] --> D["Clean Tweets<br/>Data_PreProcessing_1.ipynb"]
-    B --> P["stock_prices.parquet"]
-    D --> T["stock_tweets.parquet"]
-    T --> Tm["merged_stock_tweet.parquet<br/>(optional aggregate)"]
-    T --> Tn["stock_tweet_nomerge.parquet<br/>(per-tweet)"]
+        B["Clean &amp; Tidy Prices<br>Data_PreProcessing_1.ipynb"]
+        A["Raw Prices<br>data/stocknet-dataset/price/raw"]
+        D["Clean Tweets<br>Data_PreProcessing_1.ipynb"]
+        C["Raw Tweets<br>data/stocknet-dataset/tweet/preprocessed"]
+        P["stock_prices.parquet"]
+        T["stock_tweets.parquet"]
+        Tm["merged_stock_tweet.parquet<br>(optional aggregate)"]
+        Tn["stock_tweet_nomerge.parquet<br>(per-tweet)"]
   end
 
-  %% ----------------------
-  %% Join & feature engineering
-  %% ----------------------
-  subgraph FE[Join + Feature Engineering]
+ subgraph FE["Join + Feature Engineering"]
     direction TB
-    P --> J1["Join / Align on ticker + date"]
+        J1["Join / Align on ticker + date"]
+        M["stock_tweets.parquet"]
+        F1["Feature Engineering<br>(Technical + NLP + Sector)"]
+  end
+
+ %% Predictive Layer details
+ subgraph BM["Base Models"]
+    direction TB
+        B1["Base Models (Binary / Regression)"]
+        B2["Base Models (Multiclass)"]
+  end
+
+ subgraph BH["Benchmarking + Hyperparameter Tuning (Shared)"]
+    direction TB
+        BH_IN(("in"))
+        H["Benchmarking + Hyperparameter Tuning"]
+        BH_OUT(("out"))
+  end
+
+ subgraph MF["Meta Features"]
+    direction TB
+        MF_IN(("in"))
+        M1["Meta Features<br>Meta_Features.ipynb"]
+        ME["Early Exit"]
+        MF_OUT(("out"))
+  end
+
+ subgraph SIM["Investment Simulation"]
+    direction TB
+        SIM_IN(("in"))
+        S1["Investment Simulation<br>Invesment_Simulation_System.ipynb"]
+        S2["Investment Simulation (Multiclass)"]
+  end
+
+ %% Predictive Layer container: now top-down
+ subgraph PL["Predictive Layer"]
+    direction TB
+      PL_TOP(( ))
+        BM
+        BH
+        MF
+        SIM
+      PL_BOTTOM(( ))
+
+      PL_TOP --> BM
+      BM --> BH
+      BH --> MF
+      MF --> SIM
+      SIM --> PL_BOTTOM
+  end
+
+ %% Data flow
+    A --> B
+    C --> D
+    B --> P
+    D --> T
+    T --> Tm & Tn
+    P --> J1
     Tn --> J1
-    J1 --> M["stock_tweets.parquet"]
-    M --> F1["Feature Engineering<br/>(Technical + NLP + Sector)"]
-  end
-
-  %% ----------------------
-  %% Base models
-  %% ----------------------
-  subgraph BM["Base Models"]
-    direction TB
-    F1 --> B1["Base Models (Binary / Regression)"]
-    F1 --> B2["Base Models (Multiclass)"]
-  end
-
-  %% ----------------------
-  %% Shared benchmarking + HPO
-  %% ----------------------
-  subgraph BH["Benchmarking + Hyperparameter Tuning (Shared)"]
-    direction TB
-    BH_IN((in))
-    H["Benchmarking + Hyperparameter Tuning"]
-    BH_OUT((out))
-    BH_IN --> H --> BH_OUT
-  end
-
-  %% ----------------------
-  %% Meta features
-  %% ----------------------
-  subgraph MF["Meta Features"]
-    direction LR
-    MF_IN((in))
-    M1["Meta Features<br/>Meta_Features.ipynb"]
-    ME["Early Exit"]
-    MF_OUT((out))
-    MF_IN --> M1
-    MF_IN --> ME
+    J1 --> M
+    M --> F1
+    F1 --> B1 & B2
+    BH_IN --> H
+    H --> BH_OUT & O["Results &amp; Reports<br>results/*"]
+    MF_IN --> M1 & ME
     M1 --> MF_OUT
     ME --> MF_OUT
-  end
+    B1 --> BH_IN
+    B2 --> BH_IN
+    BH_OUT --> MF_IN
+    MF_OUT --> SIM_IN
+    SIM_IN --> S1 & S2
+    M1 -. iterate .-> BH_IN
+    S1 --> O
+    S2 --> O
 
-  %% ----------------------
-  %% Simulation + outputs
-  %% ----------------------
-  subgraph SIM[Investment Simulation]
-    direction TB
-    SIM_IN((in))
-    S1["Investment Simulation<br/>Invesment_Simulation_System.ipynb"]
-    S2["Investment Simulation (Multiclass)"]
-  end
-
-  B1 --> BH_IN
-  B2 --> BH_IN
-  BH_OUT --> MF_IN
-  MF_OUT --> SIM_IN
-  SIM_IN --> S1
-  SIM_IN --> S2
-  M1 -. iterate .-> BH_IN
-
-  H --> O
-  S1 --> O["Results & Reports<br/>results/*"]
-  S2 --> O
-```
-
-## Notes
-- **Two inputs**: raw prices and raw tweets are cleaned separately before being joined into a unified modeling dataset (`master_df.parquet`).
-- **Tweet handling**: merged (daily per ticker) is optional; the per‑tweet dataset is the default for NLP scoring.
-- **Two tracks**: binary/regression and multiclass follow the same stages: feature engineering → base tuning → meta features → meta tuning → simulation.
-- **Simulation** consumes the latest tuned models/meta features to generate portfolio decisions and evaluate performance.
+ %% Styles
+    style DP stroke:#D50000,fill:#C8E6C9,stroke-width:2px
+    style FE stroke:#D50000,fill:#BBDEFB,stroke-width:2px
+    style PL stroke:#D50000,fill:#F3E5F5,stroke-width:2px
+    style BM fill:#E1BEE7
+    style BH fill:#E1BEE7
+    style MF fill:#E1BEE7
+    style SIM fill:#E1BEE7
+    style O stroke:#D50000,fill:#FFCDD2
+   style PL_TOP fill:transparent,stroke:transparent
+   style PL_BOTTOM fill:transparent,stroke:transparent
