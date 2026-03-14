@@ -1,0 +1,102 @@
+flowchart LR
+ subgraph DP["Data Preparation"]
+    direction TB
+        B["Clean &amp; Tidy Prices<br>Data_PreProcessing_1.ipynb"]
+        A["Raw Prices<br>data/stocknet-dataset/price/raw"]
+        D["Clean Tweets<br>Data_PreProcessing_1.ipynb"]
+        C["Raw Tweets<br>data/stocknet-dataset/tweet/preprocessed"]
+        P["stock_prices.parquet"]
+        T["stock_tweets.parquet"]
+        Tm["merged_stock_tweet.parquet<br>(optional aggregate)"]
+        Tn["stock_tweet_nomerge.parquet<br>(per-tweet)"]
+  end
+
+ subgraph FE["Join + Feature Engineering"]
+    direction TB
+        J1["Join / Align on ticker + date"]
+        M["stock_tweets.parquet"]
+        F1["Feature Engineering<br>(Technical + NLP + Sector)"]
+  end
+
+ %% Predictive Layer details
+ subgraph BM["Base Models"]
+    direction TB
+        B1["Base Models (Binary / Regression)"]
+        B2["Base Models (Multiclass)"]
+  end
+
+ subgraph BH["Benchmarking + Hyperparameter Tuning (Shared)"]
+    direction TB
+        BH_IN(("in"))
+        H["Benchmarking + Hyperparameter Tuning"]
+        BH_OUT(("out"))
+  end
+
+ subgraph MF["Meta Features"]
+    direction TB
+        MF_IN(("in"))
+        M1["Meta Features<br>Meta_Features.ipynb"]
+        ME["Early Exit"]
+        MF_OUT(("out"))
+  end
+
+ subgraph SIM["Investment Simulation"]
+    direction TB
+        SIM_IN(("in"))
+        S1["Investment Simulation<br>Invesment_Simulation_System.ipynb"]
+        S2["Investment Simulation (Multiclass)"]
+  end
+
+ %% Predictive Layer container: now top-down
+ subgraph PL["Predictive Layer"]
+    direction TB
+   PL_TOP(( ))
+        BM
+        BH
+        MF
+        SIM
+   PL_BOTTOM(( ))
+
+   PL_TOP --> BM
+   BM --> BH
+   BH --> MF
+   MF --> SIM
+   SIM --> PL_BOTTOM
+  end
+
+ %% Data flow
+    A --> B
+    C --> D
+    B --> P
+    D --> T
+    T --> Tm & Tn
+    P --> J1
+    Tn --> J1
+    J1 --> M
+    M --> F1
+    F1 --> B1 & B2
+    BH_IN --> H
+    H --> BH_OUT & O["Results &amp; Reports<br>results/*"]
+    MF_IN --> M1 & ME
+    M1 --> MF_OUT
+    ME --> MF_OUT
+    B1 --> BH_IN
+    B2 --> BH_IN
+    BH_OUT --> MF_IN
+    MF_OUT --> SIM_IN
+    SIM_IN --> S1 & S2
+    M1 -. iterate .-> BH_IN
+    S1 --> O
+    S2 --> O
+
+ %% Styles
+    style DP stroke:#D50000,fill:#C8E6C9,stroke-width:2px
+    style FE stroke:#D50000,fill:#BBDEFB,stroke-width:2px
+    style PL stroke:#D50000,fill:#F3E5F5,stroke-width:2px
+    style BM fill:#E1BEE7
+    style BH fill:#E1BEE7
+    style MF fill:#E1BEE7
+    style SIM fill:#E1BEE7
+    style O stroke:#D50000,fill:#FFCDD2
+   style PL_TOP fill:transparent,stroke:transparent
+   style PL_BOTTOM fill:transparent,stroke:transparent
