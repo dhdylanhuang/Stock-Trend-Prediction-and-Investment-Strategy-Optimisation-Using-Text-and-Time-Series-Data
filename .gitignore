@@ -225,6 +225,9 @@ images/
 # Trained models
 trained_models/
 trained_models_multi/
+trained_models_meta/
+trained_models_multiclass/
+trained_models_multiclass_meta/
 
 # TeX unnecessary files
 *.bbl
