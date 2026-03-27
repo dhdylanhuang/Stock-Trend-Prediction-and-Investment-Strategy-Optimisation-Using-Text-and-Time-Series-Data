@@ -132,4 +132,4 @@ Most notebooks set fixed random seeds and use deterministic options where possib
 - Simulated trading does not include all real‑world frictions unless explicitly modeled in notebooks.
 
 ## License and Usage
-For academic use only unless otherwise specified in `documentation/` or dataset licenses.
+For academic use only.
