@@ -1,0 +1,13 @@
+pandas
+numpy
+scikit-learn
+torch
+transformers
+optuna
+matplotlib
+seaborn
+tqdm
+pyarrow
+joblib
+pandas-ta
+wordcloud
