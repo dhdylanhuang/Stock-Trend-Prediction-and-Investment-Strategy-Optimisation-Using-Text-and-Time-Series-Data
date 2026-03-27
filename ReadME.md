@@ -1,17 +1,23 @@
 # Stock Trend Prediction and Investment Strategy Optimisation  
-**Text + Time‑Series Signals | Dissertation‑Ready Repository**
 
 This repository presents an end‑to‑end research pipeline for stock trend prediction that fuses price/technical indicators with NLP signals derived from financial tweets. It supports data preprocessing, feature engineering (including sector and meta‑features), model benchmarking (binary, regression, and multi‑class/ordinal), and investment simulation with an optional early‑exit filter under realistic constraints.
 
 ## Project Overview
-**Goal**: Predict short‑/-medium horizon price direction/returns and evaluate decision‑making performance using a constrained trading simulation.  
+**Goal**: Predict short-/medium-horizon price direction/returns and evaluate decision‑making performance using a constrained trading simulation.  
 **Core idea**: Combine market micro‑signals (technical indicators) with textual sentiment/emotion/stance information to improve predictive signal quality.
+
+## Dissertation Highlights (March 26, 2026)
+- **Reliability‑aware meta‑features improved trading outcomes**, not just predictive accuracy.  
+- **Longer‑horizon classification models produced the most useful trading signals** in simulation.  
+- **Best reported investment result**: a **12.47% return over 100 trading days** using the **binary meta‑feature system with MPT allocation**.  
+- The work argues that **economic performance and calibration** are essential evaluation criteria, not accuracy alone.  
 
 ### Key Contributions
 1. A structured multi‑stage pipeline from raw data to portfolio simulation.  
 2. Multiple NLP feature streams (sentiment, emotion, stance, FinBERT) aligned to daily ticker data.  
 3. Comparative benchmarking across feature sets and model families.  
-4. Simulation framework enforcing allocation limits, diversification, and probabilistic sizing.
+4. Meta‑feature reliability modeling and an early‑exit mechanism to improve decision stability.  
+5. Simulation framework enforcing allocation limits, diversification, and probabilistic sizing.  
 
 ## Repository Layout
 - `data-pre-processing/` data ingestion and cleaning notebooks.  
@@ -30,6 +36,12 @@ This repository presents an end‑to‑end research pipeline for stock trend pre
 3. **Benchmarking**: train/evaluate sequence models on fixed time splits.  
 4. **Meta‑Features & Early‑Exit**: generate model‑reliability signals and optional early‑exit predictions for simulation.  
 5. **Simulation**: portfolio construction using calibrated predictions and constrained risk rules.
+
+## Research Questions (Dissertation)
+1. How well do deep sequence models predict short‑horizon returns using price + text features?  
+2. Do reliability‑aware meta‑features improve predictive stability and downstream profitability?  
+3. Which allocation strategy (Kelly, MPT, or hybrid) yields better risk‑adjusted performance?  
+4. How do horizon length and model class (binary, regression, ordinal) interact with economic outcomes?
 
 ## Pipeline Run Order (Start → Finish)
 **Start here**: raw StockNet data in `data/stocknet-dataset/`  
@@ -54,7 +66,7 @@ This repository presents an end‑to‑end research pipeline for stock trend pre
 
 
 ## System Architecture
-![Pipeline Overview](documentation/architecturediagram.svg)
+![Pipeline Overview](documentation/architecturediagram.png)
 
 ## Notebook Guide (Primary)
 **Preprocessing**
