@@ -1,4 +1,4 @@
-# Stock Trend Prediction and Investment Strategy Optimisation  
+# Trust-Aware Stock Trend Prediction and Investment Strategy Optimisation Using Deep Learning
 
 This repository presents an end‑to‑end research pipeline for stock trend prediction that fuses price/technical indicators with NLP signals derived from financial tweets. It supports data preprocessing, feature engineering (including sector and meta‑features), model benchmarking (binary, regression, and multi‑class/ordinal), and investment simulation with an optional early‑exit filter under realistic constraints.
 
